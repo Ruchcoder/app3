@@ -76,12 +76,11 @@ if uploaded_file is not None:
 
     for y in range(height):
         for x in range(width):
-            r, g, b = img_array[y, x] / 255.0  # normalize
+            r, g, b = img_array[y, x] / 255.0
             h, s, v = colorsys.rgb_to_hsv(r, g, b)
             h_deg = h * 360
             s_pct = s * 100
             v_pct = v * 100
-            # Rust ~ 10°-40° hue, saturation > 50%, value > 30%
             if 10 <= h_deg <= 40 and s_pct > 50 and v_pct > 30:
                 rust_mask[y, x] = True
 
@@ -109,7 +108,7 @@ if uploaded_file is not None:
         rust_severity = "High"
 
     # -------------------------
-    # QUICK DASHBOARD
+    # QUICK DASHBOARD + LEGEND
     # -------------------------
     st.subheader("Quick Defect Severity Dashboard")
     col1, col2 = st.columns(2)
@@ -117,6 +116,15 @@ if uploaded_file is not None:
         st.metric("Crack Severity", crack_severity)
     with col2:
         st.metric("Rust Severity", rust_severity)
+
+    # Legend above image
+    st.markdown("**Legend (Overlay Colors on Image):**")
+    st.markdown(
+        """
+        - 🔴 Red → Crack Detected  
+        - 🟠 Orange → Rust Detected  
+        """
+    )
 
     # -------------------------
     # DRAW RESULTS
@@ -146,18 +154,10 @@ if uploaded_file is not None:
                 draw.point((x, y), fill=(255, 165, 0))
 
     # -------------------------
-    # DISPLAY IMAGE AND LEGEND
+    # DISPLAY PROCESSED IMAGE
     # -------------------------
     st.subheader("Detection Overlay")
     st.image(image_resized, use_container_width=True)
-
-    st.markdown("**Legend (Overlay Colors):**")
-    st.markdown(
-        """
-        - 🔴 Red → Crack Detected  
-        - 🟠 Orange → Rust Detected  
-        """
-    )
 
     # -------------------------
     # INSPECTION REPORT
