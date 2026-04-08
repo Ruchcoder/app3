@@ -142,7 +142,7 @@ if uploaded_file is not None:
     if crack_pixels > 200:
         st.success("Cracks Detected")
         st.write(f"Crack Severity: {crack_severity}")
-        actions.append("- Repair cracks if detected")
+        actions.append("- Immediate inspection and maintenance required. Repair cracks if detected")
     else:
         st.info("No Cracks Detected")
 
