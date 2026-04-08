@@ -152,7 +152,7 @@ if uploaded_file is not None:
         st.write(f"Rust Severity: {rust_severity}")
         actions.append("- Apply anti-corrosion treatment if rust is present")
     else:
-        st.info("No Rust Detected")
+        st.info("No Significant Rust Detected")
 
     # Recommended actions only for detected defects
     if actions:
