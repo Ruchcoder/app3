@@ -157,7 +157,7 @@ if uploaded_file is not None:
     # Recommended actions only for detected defects
     if actions:
         st.subheader("Recommended Action")
-        st.write("Recommended Action:")
+        #st.write("Recommended Action:")
         for action in actions:
             st.write(action)
 
