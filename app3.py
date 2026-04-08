@@ -76,12 +76,12 @@ if uploaded_file is not None:
 
     for y in range(height):
         for x in range(width):
-            r, g, b = img_array[y, x] / 255.0  # normalize to 0-1
-            h, s, v = colorsys.rgb_to_hsv(r, g, b)  # h:0-1, s:0-1, v:0-1
-            h_deg = h * 360  # convert to degrees
+            r, g, b = img_array[y, x] / 255.0  # normalize
+            h, s, v = colorsys.rgb_to_hsv(r, g, b)
+            h_deg = h * 360
             s_pct = s * 100
             v_pct = v * 100
-            # Rust = orange/brown ~ 10°-40° hue, high saturation, moderate value
+            # Rust ~ 10°-40° hue, saturation > 50%, value > 30%
             if 10 <= h_deg <= 40 and s_pct > 50 and v_pct > 30:
                 rust_mask[y, x] = True
 
@@ -123,6 +123,7 @@ if uploaded_file is not None:
     # -------------------------
     draw = ImageDraw.Draw(image_resized)
 
+    # Draw cracks in red
     if crack_pixels > 200:
         for y in range(height):
             x_positions = np.where(crack_mask[y, :])[0]
@@ -138,14 +139,25 @@ if uploaded_file is not None:
                         prev = x
                 draw.line((start, y, prev, y), fill="red", width=3)
 
+    # Draw rust in orange
     for y in range(height):
         for x in range(width):
             if rust_mask[y, x]:
-                draw.point((x, y), fill=(255, 165, 0))  # orange
+                draw.point((x, y), fill=(255, 165, 0))
 
-    # Display the processed image
+    # -------------------------
+    # DISPLAY IMAGE AND LEGEND
+    # -------------------------
     st.subheader("Detection Overlay")
     st.image(image_resized, use_container_width=True)
+
+    st.markdown("**Legend (Overlay Colors):**")
+    st.markdown(
+        """
+        - 🔴 Red → Crack Detected  
+        - 🟠 Orange → Rust Detected  
+        """
+    )
 
     # -------------------------
     # INSPECTION REPORT
@@ -156,7 +168,7 @@ if uploaded_file is not None:
     if crack_pixels > 200:
         st.success("Cracks Detected")
         st.write(f"Crack Severity: {crack_severity}")
-        actions.append("- Immediate inspection and maintenance required. Repair cracks detected")
+        actions.append("- Immediate inspection and maintenance required. Repair cracks or opening detected")
     else:
         st.info("No Cracks Detected")
 
