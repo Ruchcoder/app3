@@ -69,15 +69,21 @@ if uploaded_file is not None:
     crack_pixels = np.sum(crack_mask)
 
     # -------------------------
-    # RUST DETECTION (COLOR)
+    # RUST DETECTION (COLOR-BASED)
     # -------------------------
     img_array = np.array(image_resized)
-
     R = img_array[:, :, 0]
     G = img_array[:, :, 1]
     B = img_array[:, :, 2]
 
-    rust_mask = (R > 100) & (G < 100) & (B < 80) & (R > G) & (R > B)
+    # Rust RGB range (reddish-brown/orange)
+    rust_mask = (
+        (R > 120) & (R < 255) &       # Red component high
+        (G > 40) & (G < 150) &        # Green moderate
+        (B > 0) & (B < 120) &         # Blue low
+        (R > G) & (R > B)              # Red dominant
+    )
+
     rust_pixels = np.sum(rust_mask)
 
     # -------------------------
@@ -105,9 +111,8 @@ if uploaded_file is not None:
     for y in range(height):
         for x in range(width):
             if rust_mask[y, x]:
-                draw.point((x, y), fill=(255, 165, 0))  # orange
+                draw.point((x, y), fill=(255, 165, 0))
 
-    # Display the processed image
     st.subheader("Detection Overlay")
     st.image(image_resized, use_container_width=True)
 
@@ -142,7 +147,7 @@ if uploaded_file is not None:
     if crack_pixels > 200:
         st.success("Cracks Detected")
         st.write(f"Crack Severity: {crack_severity}")
-        actions.append("- Immediate inspection and maintenance required. Repair cracks detected")
+        actions.append("- Repair cracks if detected")
     else:
         st.info("No Cracks Detected")
 
@@ -152,12 +157,11 @@ if uploaded_file is not None:
         st.write(f"Rust Severity: {rust_severity}")
         actions.append("- Apply anti-corrosion treatment if rust is present")
     else:
-        st.info("No Significant Rust Detected")
+        st.info("No Rust Detected")
 
     # Recommended actions only for detected defects
     if actions:
-        st.subheader("Recommended Action")
-        #st.write("Recommended Action:")
+        st.write("Recommended Action:")
         for action in actions:
             st.write(action)
 
