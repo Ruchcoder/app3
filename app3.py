@@ -108,7 +108,7 @@ if uploaded_file is not None:
         rust_severity = "High"
 
     # -------------------------
-    # QUICK DASHBOARD + LEGEND
+    # QUICK DASHBOARD
     # -------------------------
     st.subheader("Quick Defect Severity Dashboard")
     col1, col2 = st.columns(2)
@@ -117,14 +117,31 @@ if uploaded_file is not None:
     with col2:
         st.metric("Rust Severity", rust_severity)
 
-    # Legend above image
+    # -------------------------
+    # LEGEND WITH COLORED BOXES
+    # -------------------------
     st.markdown("**Legend (Overlay Colors on Image):**")
-    st.markdown(
-        """
-        - 🔴 Red → Crack Detected  
-        - 🟠 Orange → Rust Detected  
-        """
-    )
+    legend_cols = st.columns(2)
+    with legend_cols[0]:
+        st.markdown(
+            """
+            <div style="display:flex; align-items:center;">
+                <div style="width:20px; height:20px; background-color:red; margin-right:5px;"></div>
+                Crack Detected
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+    with legend_cols[1]:
+        st.markdown(
+            """
+            <div style="display:flex; align-items:center;">
+                <div style="width:20px; height:20px; background-color:orange; margin-right:5px;"></div>
+                Rust Detected
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
 
     # -------------------------
     # DRAW RESULTS
