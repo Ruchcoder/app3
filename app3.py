@@ -192,7 +192,7 @@ if uploaded_file is not None:
     if rust_pixels > 100:
         st.warning("Rust Detected")
         st.write(f"Rust Severity: {rust_severity}")
-        actions.append("- Apply anti-corrosion treatment if rust is present")
+        actions.append("- Immediate anti-corrosion or surface restoration treatment required if rust is present")
     else:
         st.info("No Significant Rust Detected")
 
