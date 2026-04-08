@@ -76,45 +76,14 @@ if uploaded_file is not None:
     G = img_array[:, :, 1]
     B = img_array[:, :, 2]
 
-    # Rust RGB range (reddish-brown/orange)
     rust_mask = (
-        (R > 120) & (R < 255) &       # Red component high
-        (G > 40) & (G < 150) &        # Green moderate
-        (B > 0) & (B < 120) &         # Blue low
-        (R > G) & (R > B)              # Red dominant
+        (R > 120) & (R < 255) &  # Red high
+        (G > 40) & (G < 150) &   # Green moderate
+        (B > 0) & (B < 120) &    # Blue low
+        (R > G) & (R > B)        # Red dominant
     )
 
     rust_pixels = np.sum(rust_mask)
-
-    # -------------------------
-    # DRAW RESULTS
-    # -------------------------
-    draw = ImageDraw.Draw(image_resized)
-
-    # Draw cracks in red
-    if crack_pixels > 200:
-        for y in range(height):
-            x_positions = np.where(crack_mask[y, :])[0]
-            if len(x_positions) > 0:
-                start = x_positions[0]
-                prev = x_positions[0]
-                for x in x_positions[1:]:
-                    if x == prev + 1:
-                        prev = x
-                    else:
-                        draw.line((start, y, prev, y), fill="red", width=3)
-                        start = x
-                        prev = x
-                draw.line((start, y, prev, y), fill="red", width=3)
-
-    # Draw rust in orange
-    for y in range(height):
-        for x in range(width):
-            if rust_mask[y, x]:
-                draw.point((x, y), fill=(255, 165, 0))
-
-    st.subheader("Detection Overlay")
-    st.image(image_resized, use_container_width=True)
 
     # -------------------------
     # SEVERITY ANALYSIS
@@ -138,12 +107,51 @@ if uploaded_file is not None:
         rust_severity = "High"
 
     # -------------------------
+    # DASHBOARD
+    # -------------------------
+    st.subheader("Quick Dashboard")
+    col1, col2 = st.columns(2)
+    with col1:
+        st.metric("Total Crack Pixels", crack_pixels)
+        st.metric("Crack Severity", crack_severity)
+    with col2:
+        st.metric("Total Rust Pixels", rust_pixels)
+        st.metric("Rust Severity", rust_severity)
+
+    # -------------------------
+    # DRAW RESULTS
+    # -------------------------
+    draw = ImageDraw.Draw(image_resized)
+
+    if crack_pixels > 200:
+        for y in range(height):
+            x_positions = np.where(crack_mask[y, :])[0]
+            if len(x_positions) > 0:
+                start = x_positions[0]
+                prev = x_positions[0]
+                for x in x_positions[1:]:
+                    if x == prev + 1:
+                        prev = x
+                    else:
+                        draw.line((start, y, prev, y), fill="red", width=3)
+                        start = x
+                        prev = x
+                draw.line((start, y, prev, y), fill="red", width=3)
+
+    for y in range(height):
+        for x in range(width):
+            if rust_mask[y, x]:
+                draw.point((x, y), fill=(255, 165, 0))
+
+    st.subheader("Detection Overlay")
+    st.image(image_resized, use_container_width=True)
+
+    # -------------------------
     # INSPECTION REPORT
     # -------------------------
     st.subheader("Inspection Report")
     actions = []
 
-    # Crack report
     if crack_pixels > 200:
         st.success("Cracks Detected")
         st.write(f"Crack Severity: {crack_severity}")
@@ -151,7 +159,6 @@ if uploaded_file is not None:
     else:
         st.info("No Cracks Detected")
 
-    # Rust report
     if rust_pixels > 100:
         st.warning("Rust Detected")
         st.write(f"Rust Severity: {rust_severity}")
@@ -159,7 +166,6 @@ if uploaded_file is not None:
     else:
         st.info("No Rust Detected")
 
-    # Recommended actions only for detected defects
     if actions:
         st.write("Recommended Action:")
         for action in actions:
